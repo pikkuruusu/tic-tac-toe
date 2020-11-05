@@ -1,0 +1,57 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto minmax(290px, 680px) auto;
+    grid-template-areas: 
+        "header header header"
+        ". main ."
+        "footer footer footer";
+}
+
+header {
+    grid-area: header;
+}
+
+main {
+    grid-area: main;
+}
+
+footer {
+    grid-area: footer;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+
+.game-square {
+    width: 100%;
+    padding-bottom: 100%;
+    position: relative;
+    border: 1px solid black;
+}
+
+.square-content {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(85px + (185 - 85) * ((100vw - 320px) / (680 - 320)));
+}
+
+@media screen and (min-width: 320px) {
+    .square-content {
+        font-size: calc(85px + (185 - 85) * ((100vw - 320px) / (680 - 320)));
+    }
+}
+
+@media screen and (min-width: 680px) {
+    .square-content {
+        font-size: 185px;
+    }
+}
