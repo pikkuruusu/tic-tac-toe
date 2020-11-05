@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: auto minmax(290px, 680px) auto;
+    grid-template-columns: minmax(10px, auto) minmax(290px, 680px) minmax(10px, auto);
     grid-template-areas: 
         "header header header"
         ". main ."
@@ -25,13 +25,15 @@ footer {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
+    gap: 10px 12px;
 }
 
 .game-square {
     width: 100%;
     padding-bottom: 100%;
     position: relative;
-    border: 1px solid black;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
+    border-radius: 10%;
 }
 
 .square-content {
