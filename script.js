@@ -2,37 +2,52 @@ const gameBoard = (function() {
     let board = [[0,0,0],[0,0,0],[0,0,0]];
 
     const setSquare = (y, x, value) => {
-        board[y][x] = _translateMarker(value);
+        board[y][x] = _translateMarkerToInt(value);
         console.log(board);
-    }
+    };
 
     const getSquare = (y, x) => {
         return board[y][x];
-    }
+    };
 
-    const _translateMarker = (marker) => {
+    // We want our markers to be 1 or -1 on the board to be able to check winning combinations
+    const _translateMarkerToInt = (marker) => {
         return (marker === 'X') ? 1 : -1;
-    }
+    };
 
     const sumOfRow = (y) => {
         let sum = 0;
         board[y].forEach(cell => sum += cell);
         return sum;
-    }
+    };
 
     const sumOfColumn = (x) => {
         let sum = 0;
         board.forEach(row => sum += row[x]);
         return sum;
-    }
+    };
 
-    //TODO sum of diagonal
+    const sumOfDiagonals = () => {
+        let sum = [];
+
+        let sumOfFirstDiagonal = 0;
+        let sumOfSecondDiagonal = 0;
+        let reverseColumnCounter = board.length - 1;
+        for (let i = 0; i < board.length; i++) {
+            sumOfFirstDiagonal += board[i][i];
+            sumOfSecondDiagonal += board[i][reverseColumnCounter - i];
+        }
+        sum.push(sumOfFirstDiagonal, sumOfSecondDiagonal);
+
+        return sum;
+    };
 
     return {
         setSquare,
         getSquare,
         sumOfRow,
         sumOfColumn,
+        sumOfDiagonals
     }
 })();
 
@@ -88,11 +103,24 @@ const gameController = (function() {
                 gameBoard.setSquare(yCoordinate, xCoordinate, marker);
                 displayController.writeToDOM(yCoordinate, xCoordinate, marker);
                 console.log(`${player.name} placed ${marker}`);
+                if (_isWin(yCoordinate, xCoordinate)) {
+                    console.log(`${player.name} won!`);
+                }
                 player.setTurn(false);
             } else {
                 player.setTurn(true);
             }
         })
+    }
+
+    const _isWin = (yCoordinate, xCoordinate) => {
+        // If row, column or diagonal sum is 3 or -3 a player has won
+        let sums = []
+        sums.push(gameBoard.sumOfRow(yCoordinate));
+        sums.push(gameBoard.sumOfColumn(xCoordinate));
+        gameBoard.sumOfDiagonals().forEach(sum => sums.push(sum));
+
+        return (sums.includes(3) || sums.includes(-3))
     }
 
     return {
