@@ -3,7 +3,6 @@ const gameBoard = (function() {
 
     const setSquare = (y, x, value) => {
         board[y][x] = _translateMarkerToInt(value);
-        console.log(board);
     };
 
     const getSquare = (y, x) => {
@@ -52,36 +51,54 @@ const gameBoard = (function() {
 })();
 
 const displayController = (function(doc) {
-    const writeToDOM = (y, x, value) => {
+    const writeMarkerToDOM = (y, x, value) => {
         if(doc && 'querySelector' in doc) {
             const square = doc.querySelector(`[data-yx-coordinate="${y}${x}"]`)
             square.textContent = value;
         }
     }
+
+    const clearMarkersFromDOM = () => {
+        if(doc && 'querySelector' in doc) {
+            const squares = doc.querySelectorAll('.square-content');
+            squares.forEach(square => square.textContent = '');
+        }
+    }
     return {
-        writeToDOM,
+        writeMarkerToDOM,
+        clearMarkersFromDOM
     }
 })(document);
 
 const inputController = (function(doc) {
-    const init = () => {
+    const initBoardInput = () => {
         if(doc && 'querySelector' in doc) {
             const squares = doc.querySelectorAll('.square-content');
-            squares.forEach(square => square.addEventListener('click', function(e) {
-                const coordinates = e.target.dataset.yxCoordinate.split('');
-                let yCoordinate = coordinates[0];
-                let xCoordinate = coordinates[1];
-                gameController.placeMarker(yCoordinate, xCoordinate);
-            }));
+            squares.forEach(square => square.addEventListener('click', _playMarkerOnInput));
         };
     };
 
+    const removeBoardInput = () => {
+        if(doc && 'querySelector' in doc) {
+            const squares = doc.querySelectorAll('.square-content');
+            squares.forEach(square => square.removeEventListener('click', _playMarkerOnInput));
+        };
+    }
+
+    const _playMarkerOnInput = (e) => {
+        const coordinates = e.target.dataset.yxCoordinate.split('');
+        let yCoordinate = coordinates[0];
+        let xCoordinate = coordinates[1];
+        gameController.playRound(yCoordinate, xCoordinate);
+    }
+
     return {
-        init,
+        initBoardInput,
     }
 })(document);
 
 const gameController = (function() {
+    let round = 0;
     const players = [];
 
     const initPlayers = (firstPlayer, secondPlayer) => {
@@ -94,23 +111,36 @@ const gameController = (function() {
         players.push(playerOne, playerTwo);
     }
 
-    const placeMarker = (yCoordinate, xCoordinate) => {
+    //TODO rename this to playround and create seperate functions for place marker and end game checks
+    const playRound = (yCoordinate, xCoordinate) => {
         if (gameBoard.getSquare(yCoordinate, xCoordinate)) return;
 
         players.forEach(player => {
             if (player.getTurn()) {
-                let marker = player.getPlayerMarker();
-                gameBoard.setSquare(yCoordinate, xCoordinate, marker);
-                displayController.writeToDOM(yCoordinate, xCoordinate, marker);
-                console.log(`${player.name} placed ${marker}`);
+                _placeMarker(yCoordinate, xCoordinate, player);
+
                 if (_isWin(yCoordinate, xCoordinate)) {
                     console.log(`${player.name} won!`);
+                    return;
                 }
+                if (_isDraw()) {
+                    console.log('It\'s a draw');
+                    return;
+                }
+
                 player.setTurn(false);
+                round++;
             } else {
                 player.setTurn(true);
             }
         })
+    }
+
+    const _placeMarker = (yCoordinate, xCoordinate, player) => {
+        let marker = player.getPlayerMarker();
+        gameBoard.setSquare(yCoordinate, xCoordinate, marker);
+        displayController.writeMarkerToDOM(yCoordinate, xCoordinate, marker);
+        console.log(`${player.name} placed ${marker}`);
     }
 
     const _isWin = (yCoordinate, xCoordinate) => {
@@ -123,9 +153,22 @@ const gameController = (function() {
         return (sums.includes(3) || sums.includes(-3))
     }
 
+    const _isDraw = () => {
+        return round === 8;
+    };
+
+    //TODO maybe we won't need this function at all
+    const _endGame = (bool, player) => {
+        if (bool) {
+
+        } else {
+
+        }
+    }
+
     return {
         initPlayers,
-        placeMarker,
+        playRound,
     }
 })();
 
@@ -160,4 +203,4 @@ const Player = function(name) {
 
 //This should probably move into a function and some other thing should start the game
 gameController.initPlayers(Player('Staffan'), Player('Stefan'));
-inputController.init();
+inputController.initBoardInput();
