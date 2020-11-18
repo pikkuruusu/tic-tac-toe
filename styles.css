@@ -1,8 +1,9 @@
 body {
+    background-color: #F2F1EF;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: minmax(10px, auto) minmax(290px, 680px) minmax(10px, auto);
+    grid-template-columns: minmax(10px, auto) minmax(290px, 480px) minmax(10px, auto);
     grid-template-areas: 
         ". header ."
         ". main ."
@@ -34,8 +35,19 @@ footer {
     width: 100%;
     padding-bottom: 100%;
     position: relative;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 0px 25px -5px rgba(0, 0, 0, 0.15);
     border-radius: 10%;
+    transition: all 0.2s ease-in;
+}
+
+.game-square:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 3px 3px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+.game-square:active {
+    transform: translate(1px, 1px);
+    box-shadow: -1px -1px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 .square-content {
@@ -45,18 +57,18 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: calc(85px + (185 - 85) * ((100vw - 320px) / (680 - 320)));
+    font-size: calc(85px + (185 - 85) * ((100vw - 320px) / (480 - 320)));
     cursor: pointer;
 }
 
 @media screen and (min-width: 320px) {
     .square-content {
-        font-size: calc(85px + (185 - 85) * ((100vw - 320px) / (680 - 320)));
+        font-size: calc(85px + (135 - 85) * ((100vw - 320px) / (480 - 320)));
     }
 }
 
-@media screen and (min-width: 680px) {
+@media screen and (min-width: 480px) {
     .square-content {
-        font-size: 185px;
+        font-size: 135px;
     }
 }

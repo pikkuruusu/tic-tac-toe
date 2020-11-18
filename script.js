@@ -51,6 +51,27 @@ const gameBoard = (function() {
 })();
 
 const displayController = (function(doc) {
+    const mainContainer = doc.querySelector('main');
+
+    const renderGameBoard = () => {
+        if(doc && 'querySelector' in doc) {
+            const gameBoardContainer = doc.createElement('div');
+            gameBoardContainer.id = 'game-board';
+            for (let y = 0; y < 3; y++) {
+                for (let x = 0; x < 3; x++) {
+                    const gameSquare = doc.createElement('div');
+                    gameSquare.className = 'game-square';
+                    const squareContent = doc.createElement('div');
+                    squareContent.className = 'square-content';
+                    squareContent.setAttribute('data-yx-coordinate', `${y}${x}`);
+                    gameSquare.appendChild(squareContent);
+                    gameBoardContainer.appendChild(gameSquare);
+                }
+            }
+            mainContainer.appendChild(gameBoardContainer);
+        }
+    }
+
     const writeMarkerToDOM = (y, x, value) => {
         if(doc && 'querySelector' in doc) {
             const square = doc.querySelector(`[data-yx-coordinate="${y}${x}"]`)
@@ -65,6 +86,7 @@ const displayController = (function(doc) {
         }
     }
     return {
+        renderGameBoard,
         writeMarkerToDOM,
         clearMarkersFromDOM
     }
@@ -94,6 +116,7 @@ const inputController = (function(doc) {
 
     return {
         initBoardInput,
+        removeBoardInput
     }
 })(document);
 
@@ -111,7 +134,6 @@ const gameController = (function() {
         players.push(playerOne, playerTwo);
     }
 
-    //TODO rename this to playround and create seperate functions for place marker and end game checks
     const playRound = (yCoordinate, xCoordinate) => {
         if (gameBoard.getSquare(yCoordinate, xCoordinate)) return;
 
@@ -202,5 +224,6 @@ const Player = function(name) {
 }
 
 //This should probably move into a function and some other thing should start the game
+displayController.renderGameBoard();
 gameController.initPlayers(Player('Staffan'), Player('Stefan'));
 inputController.initBoardInput();
