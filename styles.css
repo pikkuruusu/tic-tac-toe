@@ -9,6 +9,7 @@ body {
         ". main ."
         "footer footer footer";
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    color: #444;
 }
 
 header {
