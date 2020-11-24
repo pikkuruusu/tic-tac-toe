@@ -85,10 +85,77 @@ const displayController = (function(doc) {
             squares.forEach(square => square.textContent = '');
         }
     }
+
+    const renderForm = () => {
+        if(doc && 'querySelector' in doc) {
+            const playerSelectForm = doc.createElement('form');
+            playerSelectForm.id = 'player-select-form';
+            playerSelectForm.appendChild(_createFormInputs('player-one', 'What\'s your name?'));
+            
+            const playerSelectionsDiv = doc.createElement('div');
+            playerSelectionsDiv.className = 'player-selections';
+
+            const playerSelectionsOnePlayer = doc.createElement('div');
+            playerSelectionsOnePlayer.id = 'selections-one-player';
+
+            const selectFriend = doc.createElement('p');
+            selectFriend.className = 'selections';
+            selectFriend.id = 'select-friend'
+            selectFriend.textContent = 'Play with a friend'
+
+            const playComputer = doc.createElement('p');
+            playComputer.className = 'selections';
+            playComputer.id = 'play-computer';
+
+            const playComputerButton = doc.createElement('button');
+            playComputerButton.textContent = 'Play against a computer';
+            const computerImg = doc.createElement('img');
+            computerImg.src = 'img/robot.svg';
+            computerImg.width = 25;
+            playComputerButton.appendChild(computerImg);
+
+            playComputer.appendChild(playComputerButton);
+
+            playerSelectionsOnePlayer.appendChild(selectFriend);
+            playerSelectionsOnePlayer.appendChild(playComputer);
+
+            playerSelectionsDiv.appendChild(playerSelectionsOnePlayer);
+            playerSelectForm.appendChild(playerSelectionsDiv);
+
+            mainContainer.appendChild(playerSelectForm);
+        }
+    }
+
+    const _createFormInputs = (id, msg) => {
+        const playerInput = doc.createElement('div');
+        playerInput.className = 'player-input';
+        const label = doc.createElement('label');
+        label.setAttribute('for', id);
+        label.textContent = msg;
+        const input = doc.createElement('input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('id', id);
+        input.setAttribute('name', id);
+        playerInput.appendChild(label);
+        playerInput.appendChild(input);
+        return playerInput;
+    }
+
+    const renderPlayerTwoInput = () => {
+        if(doc && 'querySelector' in doc) {
+            const playerSelectForm = doc.getElementById('player-select-form');
+            playerSelectForm.insertBefore(_createFormInputs('player-two', 'What\'s your name friend?'), playerSelectForm.children[0].nextSibling);
+            inputController.removeSelectFriendEL();
+            //todo remove selections one player and create the selections two player
+        }
+    }
+
     return {
         renderGameBoard,
         writeMarkerToDOM,
-        clearMarkersFromDOM
+        clearMarkersFromDOM,
+        renderForm,
+        renderPlayerTwoInput
     }
 })(document);
 
@@ -114,9 +181,35 @@ const inputController = (function(doc) {
         gameController.playRound(yCoordinate, xCoordinate);
     }
 
+    const initPlayerSelectInput = () => {
+        if(doc && 'querySelector' in doc) {
+            const playerSelectForm = doc.getElementById('player-select-form');
+            playerSelectForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted');
+            })
+
+            const selectFriend = doc.getElementById('select-friend');
+            selectFriend.addEventListener('click', displayController.renderPlayerTwoInput);
+
+/*             const playComputerSubmit = doc.getElementById('play-computer');
+            playComputerSubmit.addEventListener('click', () => {
+                console.log('Is clicked')
+                _playerSelectForm.submit();
+            }); */
+        };
+    }
+
+    const removeSelectFriendEL = () => {
+        const selectFriend = doc.getElementById('select-friend');
+        selectFriend.removeEventListener('click', displayController.renderPlayerTwoInput);
+    }
+
     return {
         initBoardInput,
-        removeBoardInput
+        removeBoardInput,
+        initPlayerSelectInput,
+        removeSelectFriendEL
     }
 })(document);
 
@@ -224,6 +317,9 @@ const Player = function(name) {
 }
 
 //This should probably move into a function and some other thing should start the game
-displayController.renderGameBoard();
+/* displayController.renderGameBoard();
 gameController.initPlayers(Player('Staffan'), Player('Stefan'));
-inputController.initBoardInput();
+inputController.initBoardInput(); */
+
+displayController.renderForm();
+inputController.initPlayerSelectInput();
