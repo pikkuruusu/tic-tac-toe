@@ -93,7 +93,7 @@ const displayController = (function(doc) {
             playerSelectForm.appendChild(_createFormInputs('player-one', 'What\'s your name?'));
             
             const playerSelectionsDiv = doc.createElement('div');
-            playerSelectionsDiv.className = 'player-selections';
+            playerSelectionsDiv.id = 'player-selections';
 
             const playerSelectionsOnePlayer = doc.createElement('div');
             playerSelectionsOnePlayer.id = 'selections-one-player';
@@ -146,8 +146,29 @@ const displayController = (function(doc) {
             const playerSelectForm = doc.getElementById('player-select-form');
             playerSelectForm.insertBefore(_createFormInputs('player-two', 'What\'s your name friend?'), playerSelectForm.children[0].nextSibling);
             inputController.removeSelectFriendEL();
-            //todo remove selections one player and create the selections two player
+            doc.getElementById('selections-one-player').remove();
+
+            const playerSelectionsTwoPlayer = doc.createElement('div');
+            playerSelectionsTwoPlayer.id = 'selections-two-player';
+
+            const playFriend = doc.createElement('p');
+            playFriend.className = 'selections';
+            playFriend.id = 'play-friend'
+
+            const playFriendButton = doc.createElement('button');
+            playFriendButton.textContent = 'Play!';
+
+            playFriend.appendChild(playFriendButton);
+            playerSelectionsTwoPlayer.appendChild(playFriend);
+
+            const playerSelections = doc.getElementById('player-selections');
+            playerSelections.appendChild(playerSelectionsTwoPlayer);
         }
+    }
+
+    const removeForm = () => {
+        const playerSelectForm = doc.getElementById('player-select-form');
+        playerSelectForm.remove();
     }
 
     return {
@@ -155,7 +176,8 @@ const displayController = (function(doc) {
         writeMarkerToDOM,
         clearMarkersFromDOM,
         renderForm,
-        renderPlayerTwoInput
+        renderPlayerTwoInput,
+        removeForm
     }
 })(document);
 
@@ -184,25 +206,45 @@ const inputController = (function(doc) {
     const initPlayerSelectInput = () => {
         if(doc && 'querySelector' in doc) {
             const playerSelectForm = doc.getElementById('player-select-form');
-            playerSelectForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                console.log('Form submitted');
-            })
+            playerSelectForm.addEventListener('submit', _handleFormSubmit);
 
             const selectFriend = doc.getElementById('select-friend');
             selectFriend.addEventListener('click', displayController.renderPlayerTwoInput);
-
-/*             const playComputerSubmit = doc.getElementById('play-computer');
-            playComputerSubmit.addEventListener('click', () => {
-                console.log('Is clicked')
-                _playerSelectForm.submit();
-            }); */
         };
+    }
+
+    const _removeFormEL = () => {
+        const playerSelectForm = doc.getElementById('player-select-form');
+        playerSelectForm.removeEventListener('submit', _handleFormSubmit);
+
+        if (doc.getElementById('select-friend')) {
+            removeSelectFriendEL();
+        }
     }
 
     const removeSelectFriendEL = () => {
         const selectFriend = doc.getElementById('select-friend');
         selectFriend.removeEventListener('click', displayController.renderPlayerTwoInput);
+    }
+
+    const _handleFormSubmit = function(e) {
+        e.preventDefault();
+        let playerOne = doc.getElementById('player-one').value;
+        if (playerOne === "") playerOne = "Player One";
+        let playerTwo = ""
+        if (doc.getElementById('player-two')) {
+            playerTwo = doc.getElementById('player-two').value;
+            if (playerTwo === "") playerTwo = "Player Two";
+        } else {
+            playerTwo = "Computer"
+        }
+
+        _removeFormEL();
+        displayController.removeForm();
+
+        displayController.renderGameBoard();
+        gameController.initPlayers(Player(playerOne), Player(playerTwo));
+        inputController.initBoardInput();
     }
 
     return {
@@ -236,6 +278,7 @@ const gameController = (function() {
 
                 if (_isWin(yCoordinate, xCoordinate)) {
                     console.log(`${player.name} won!`);
+                    //TODO end the game
                     return;
                 }
                 if (_isDraw()) {
@@ -317,9 +360,7 @@ const Player = function(name) {
 }
 
 //This should probably move into a function and some other thing should start the game
-/* displayController.renderGameBoard();
-gameController.initPlayers(Player('Staffan'), Player('Stefan'));
-inputController.initBoardInput(); */
+
 
 displayController.renderForm();
 inputController.initPlayerSelectInput();
