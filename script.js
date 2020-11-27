@@ -72,6 +72,14 @@ const displayController = (function(doc) {
         }
     }
 
+    const _clearGameBoard = () => {
+        inputController.removeBoardInput();
+        if(doc && 'querySelector' in doc) {
+            const gameBoardContainer = doc.getElementById('game-board');
+            gameBoardContainer.remove();
+        }
+    }
+
     const writeMarkerToDOM = (y, x, value) => {
         if(doc && 'querySelector' in doc) {
             const square = doc.querySelector(`[data-yx-coordinate="${y}${x}"]`)
@@ -171,13 +179,24 @@ const displayController = (function(doc) {
         playerSelectForm.remove();
     }
 
+    const renderEndScreen = (haveWinner, player) => {
+        _clearGameBoard();
+        if (haveWinner) {
+            //TODO render something
+            console.log(player.name + ' won');
+        } else {
+            console.log('draw');
+        }
+    }
+
     return {
         renderGameBoard,
         writeMarkerToDOM,
         clearMarkersFromDOM,
         renderForm,
         renderPlayerTwoInput,
-        removeForm
+        removeForm,
+        renderEndScreen
     }
 })(document);
 
@@ -257,7 +276,7 @@ const inputController = (function(doc) {
 
 const gameController = (function() {
     let round = 0;
-    const players = [];
+    let players = [];
 
     const initPlayers = (firstPlayer, secondPlayer) => {
         let playerOne = firstPlayer;
@@ -277,12 +296,11 @@ const gameController = (function() {
                 _placeMarker(yCoordinate, xCoordinate, player);
 
                 if (_isWin(yCoordinate, xCoordinate)) {
-                    console.log(`${player.name} won!`);
-                    //TODO end the game
+                    displayController.renderEndScreen(true, player);
                     return;
                 }
                 if (_isDraw()) {
-                    console.log('It\'s a draw');
+                    displayController.renderEndScreen(false);
                     return;
                 }
 
@@ -314,15 +332,6 @@ const gameController = (function() {
     const _isDraw = () => {
         return round === 8;
     };
-
-    //TODO maybe we won't need this function at all
-    const _endGame = (bool, player) => {
-        if (bool) {
-
-        } else {
-
-        }
-    }
 
     return {
         initPlayers,
@@ -358,9 +367,6 @@ const Player = function(name) {
         getPlayerMarker,
     }
 }
-
-//This should probably move into a function and some other thing should start the game
-
 
 displayController.renderForm();
 inputController.initPlayerSelectInput();
