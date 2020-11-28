@@ -180,13 +180,32 @@ const displayController = (function(doc) {
     }
 
     const renderEndScreen = (haveWinner, player) => {
-        _clearGameBoard();
-        if (haveWinner) {
-            //TODO render something
-            console.log(player.name + ' won');
-        } else {
-            console.log('draw');
+        if(doc && 'querySelector' in doc) {
+            _clearGameBoard();
+            const endScreen = doc.createElement('div');
+            endScreen.id = 'end-screen';
+            if (haveWinner) {
+                endScreen.textContent = `${player.name} won!`;
+            } else {
+                endScreen.textContent = 'It\'s a draw';
+            }
+            const playAgain = doc.createElement('p');
+            playAgain.id = 'play-again';
+            playAgain.textContent = 'Play again?';
+
+            endScreen.appendChild(playAgain);
+
+            mainContainer.appendChild(endScreen);
+            inputController.initEndScreenInput();
         }
+    }
+
+    const renderReplay = () => {
+        const endScreen = doc.getElementById('end-screen');
+        endScreen.remove();
+        //TODO more resetting board and rounds
+        renderGameBoard()
+        inputController.initBoardInput();
     }
 
     return {
@@ -196,7 +215,8 @@ const displayController = (function(doc) {
         renderForm,
         renderPlayerTwoInput,
         removeForm,
-        renderEndScreen
+        renderEndScreen,
+        renderReplay
     }
 })(document);
 
@@ -266,11 +286,23 @@ const inputController = (function(doc) {
         inputController.initBoardInput();
     }
 
+    const initEndScreenInput = () => {
+        const playAgain = doc.getElementById('play-again');
+        playAgain.addEventListener('click', displayController.renderReplay);
+    }
+
+    const removeEndScreenInput = () => {
+        const playAgain = doc.getElementById('play-again');
+        playAgain.removeEventListener('click', displayController.renderReplay);
+    }
+
     return {
         initBoardInput,
         removeBoardInput,
         initPlayerSelectInput,
-        removeSelectFriendEL
+        removeSelectFriendEL,
+        initEndScreenInput,
+        removeEndScreenInput
     }
 })(document);
 

@@ -114,10 +114,6 @@ p.selections img {
     margin-left: 10px;
 }
 
-.hidden {
-    display: none;
-}
-
 /* Buttons styles start */
 button {
     display: inline-block;
@@ -143,3 +139,11 @@ button:active {
     transform: scale(0.99);
 }
 /* Button styles end */
+
+#end-screen {
+    font-size: 1.2em;
+}
+
+#play-again {
+    cursor: pointer;
+}
