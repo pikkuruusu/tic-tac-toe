@@ -41,12 +41,17 @@ const gameBoard = (function() {
         return sum;
     };
 
+    const clearBoard = () => {
+        board = [[0,0,0],[0,0,0],[0,0,0]];
+    }
+
     return {
         setSquare,
         getSquare,
         sumOfRow,
         sumOfColumn,
-        sumOfDiagonals
+        sumOfDiagonals,
+        clearBoard
     }
 })();
 
@@ -203,7 +208,12 @@ const displayController = (function(doc) {
     const renderReplay = () => {
         const endScreen = doc.getElementById('end-screen');
         endScreen.remove();
-        //TODO more resetting board and rounds
+
+        gameBoard.clearBoard();
+        gameController.resetRound();
+        let players = gameController.getPlayers();
+        players[0].setTurn(true);
+        players[1].setTurn(false);
         renderGameBoard()
         inputController.initBoardInput();
     }
@@ -365,9 +375,19 @@ const gameController = (function() {
         return round === 8;
     };
 
+    const resetRound = () => {
+        round = 0;
+    }
+
+    const getPlayers = () => {
+        return players;
+    }
+
     return {
         initPlayers,
         playRound,
+        resetRound,
+        getPlayers
     }
 })();
 
