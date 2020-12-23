@@ -41,6 +41,18 @@ const gameBoard = (function() {
         return sum;
     };
 
+    const getFreeSquares = () => {
+        let freeSquares =[];
+        for (y = 0; y < 3; y++) {
+            for (x = 0; x < 3; x++) {
+                if (board[y][x] === 0) {
+                    freeSquares.push([y, x]);
+                }
+            }
+        }
+        return freeSquares;
+    }
+
     const clearBoard = () => {
         board = [[0,0,0],[0,0,0],[0,0,0]];
     }
@@ -51,6 +63,7 @@ const gameBoard = (function() {
         sumOfRow,
         sumOfColumn,
         sumOfDiagonals,
+        getFreeSquares,
         clearBoard
     }
 })();
@@ -284,15 +297,17 @@ const inputController = (function(doc) {
         if (doc.getElementById('player-two')) {
             playerTwo = doc.getElementById('player-two').value;
             if (playerTwo === "") playerTwo = "Player Two";
+            gameController.initPlayers(Player(playerOne), Player(playerTwo));
         } else {
             playerTwo = "Computer"
+            gameController.initPlayers(Player(playerOne), Player(playerTwo), true);
         }
 
         _removeFormEL();
         displayController.removeForm();
 
         displayController.renderGameBoard();
-        gameController.initPlayers(Player(playerOne), Player(playerTwo));
+        
         inputController.initBoardInput();
     }
 
@@ -320,13 +335,15 @@ const gameController = (function() {
     let round = 0;
     let players = [];
 
-    const initPlayers = (firstPlayer, secondPlayer) => {
+    //This need to be changed to get computer player, maybe just a bool
+    const initPlayers = (firstPlayer, secondPlayer, computerGame = false) => {
         let playerOne = firstPlayer;
         let playerTwo = secondPlayer;
         playerOne.setTurn(true);
         playerOne.setPlayerMarker('X');
         playerTwo.setTurn(false);
         playerTwo.setPlayerMarker('O');
+        if (computerGame) playerTwo.setIsComputer(true); 
         players.push(playerOne, playerTwo);
     }
 
@@ -351,6 +368,12 @@ const gameController = (function() {
             } else {
                 player.setTurn(true);
             }
+            //here we can check if it is computer players turn and call some functions that calls play round
+            setTimeout(function () {
+                if (player.getIsComputer() && player.getTurn()) _randomComputerMove();
+            }, 500)
+
+
         })
     }
 
@@ -383,6 +406,15 @@ const gameController = (function() {
         return players;
     }
 
+    const _randomComputerMove = () => {
+        const freeSquares = gameBoard.getFreeSquares();
+        if (freeSquares.length > 0) {
+            const randomFreeSquare = freeSquares[Math.floor(Math.random() * freeSquares.length)];
+            playRound(randomFreeSquare[0], randomFreeSquare[1]);
+        }
+        
+    }
+
     return {
         initPlayers,
         playRound,
@@ -394,6 +426,7 @@ const gameController = (function() {
 const Player = function(name) {
     let isTurn = false;
     let playerMarker = "";
+    let isComputer = false;
 
     const setTurn = (bool) => {
         isTurn = bool;
@@ -411,12 +444,22 @@ const Player = function(name) {
         return playerMarker;
     }
 
+    const setIsComputer = (bool) => {
+        isComputer = bool;
+    }
+
+    const getIsComputer = () => {
+        return isComputer;
+    }
+
     return {
         name,
         setTurn,
         getTurn,
         setPlayerMarker,
         getPlayerMarker,
+        setIsComputer,
+        getIsComputer,
     }
 }
 
