@@ -1,6 +1,4 @@
-const gameBoard = (function() {
-    let board = [[0,0,0],[0,0,0],[0,0,0]];
-
+const gameBoard = function(board = [[0,0,0],[0,0,0],[0,0,0]]) {
     const setSquare = (y, x, value) => {
         board[y][x] = _translateMarkerToInt(value);
     };
@@ -66,7 +64,7 @@ const gameBoard = (function() {
         getFreeSquares,
         clearBoard
     }
-})();
+};
 
 const displayController = (function(doc) {
     const mainContainer = doc.querySelector('main');
@@ -222,7 +220,7 @@ const displayController = (function(doc) {
         const endScreen = doc.getElementById('end-screen');
         endScreen.remove();
 
-        gameBoard.clearBoard();
+        gameController.resetMainGameBoard();
         gameController.resetRound();
         let players = gameController.getPlayers();
         players[0].setTurn(true);
@@ -334,6 +332,7 @@ const inputController = (function(doc) {
 const gameController = (function() {
     let round = 0;
     let players = [];
+    let mainGameBoard = gameBoard();
 
     //This need to be changed to get computer player, maybe just a bool
     const initPlayers = (firstPlayer, secondPlayer, computerGame = false) => {
@@ -348,7 +347,7 @@ const gameController = (function() {
     }
 
     const playRound = (yCoordinate, xCoordinate) => {
-        if (gameBoard.getSquare(yCoordinate, xCoordinate)) return;
+        if (mainGameBoard.getSquare(yCoordinate, xCoordinate)) return;
 
         players.forEach(player => {
             if (player.getTurn()) {
@@ -379,7 +378,7 @@ const gameController = (function() {
 
     const _placeMarker = (yCoordinate, xCoordinate, player) => {
         let marker = player.getPlayerMarker();
-        gameBoard.setSquare(yCoordinate, xCoordinate, marker);
+        mainGameBoard.setSquare(yCoordinate, xCoordinate, marker);
         displayController.writeMarkerToDOM(yCoordinate, xCoordinate, marker);
         console.log(`${player.name} placed ${marker}`);
     }
@@ -387,9 +386,9 @@ const gameController = (function() {
     const _isWin = (yCoordinate, xCoordinate) => {
         // If row, column or diagonal sum is 3 or -3 a player has won
         let sums = []
-        sums.push(gameBoard.sumOfRow(yCoordinate));
-        sums.push(gameBoard.sumOfColumn(xCoordinate));
-        gameBoard.sumOfDiagonals().forEach(sum => sums.push(sum));
+        sums.push(mainGameBoard.sumOfRow(yCoordinate));
+        sums.push(mainGameBoard.sumOfColumn(xCoordinate));
+        mainGameBoard.sumOfDiagonals().forEach(sum => sums.push(sum));
 
         return (sums.includes(3) || sums.includes(-3))
     }
@@ -402,12 +401,16 @@ const gameController = (function() {
         round = 0;
     }
 
+    const resetMainGameBoard = () => {
+        mainGameBoard.clearBoard();
+    }
+
     const getPlayers = () => {
         return players;
     }
 
     const _randomComputerMove = () => {
-        const freeSquares = gameBoard.getFreeSquares();
+        const freeSquares = mainGameBoard.getFreeSquares();
         if (freeSquares.length > 0) {
             const randomFreeSquare = freeSquares[Math.floor(Math.random() * freeSquares.length)];
             playRound(randomFreeSquare[0], randomFreeSquare[1]);
@@ -419,6 +422,7 @@ const gameController = (function() {
         initPlayers,
         playRound,
         resetRound,
+        resetMainGameBoard,
         getPlayers
     }
 })();
@@ -461,7 +465,7 @@ const Player = function(name) {
         setIsComputer,
         getIsComputer,
     }
-}
+};
 
 displayController.renderForm();
 inputController.initPlayerSelectInput();
