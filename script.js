@@ -333,16 +333,18 @@ const gameController = (function() {
     let round = 0;
     let players = [];
     let mainGameBoard = gameBoard();
+    let isMiniMaxGame;
 
     //This need to be changed to get computer player, maybe just a bool
-    const initPlayers = (firstPlayer, secondPlayer, computerGame = false) => {
+    const initPlayers = (firstPlayer, secondPlayer, computerGame = false, miniMaxGame = false) => {
         let playerOne = firstPlayer;
         let playerTwo = secondPlayer;
         playerOne.setTurn(true);
         playerOne.setPlayerMarker('X');
         playerTwo.setTurn(false);
         playerTwo.setPlayerMarker('O');
-        if (computerGame) playerTwo.setIsComputer(true); 
+        if (computerGame) playerTwo.setIsComputer(true);
+        isMiniMaxGame = miniMaxGame;
         players.push(playerOne, playerTwo);
     }
 
