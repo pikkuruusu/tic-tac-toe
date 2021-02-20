@@ -138,10 +138,30 @@ const displayController = (function(doc) {
             computerImg.width = 25;
             playComputerButton.appendChild(computerImg);
 
+            const playImpossibleComputer = doc.createElement('p');
+            playImpossibleComputer.className = 'difficulty';
+            const impossibleEasyText = doc.createTextNode('Easy computer');
+            const impossibleComputerSwitchLabel = doc.createElement('label');
+            impossibleComputerSwitchLabel.className = 'switch';
+            const impossibleInputCheckbox = doc.createElement('input');
+            impossibleInputCheckbox.setAttribute('type', 'checkbox');
+            impossibleInputCheckbox.id = 'impossible-computer';
+            const impossibelSliderSpan = doc.createElement('span');
+            impossibelSliderSpan.className = 'slider round';
+            const impossibleImpossibleText = doc.createTextNode('Impossible computer!')
+
+            impossibleComputerSwitchLabel.appendChild(impossibleInputCheckbox);
+            impossibleComputerSwitchLabel.appendChild(impossibelSliderSpan);
+
+            playImpossibleComputer.appendChild(impossibleEasyText);
+            playImpossibleComputer.appendChild(impossibleComputerSwitchLabel);
+            playImpossibleComputer.appendChild(impossibleImpossibleText);
+
             playComputer.appendChild(playComputerButton);
 
             playerSelectionsOnePlayer.appendChild(selectFriend);
             playerSelectionsOnePlayer.appendChild(playComputer);
+            playerSelectionsOnePlayer.appendChild(playImpossibleComputer);
 
             playerSelectionsDiv.appendChild(playerSelectionsOnePlayer);
             playerSelectForm.appendChild(playerSelectionsDiv);
@@ -298,7 +318,8 @@ const inputController = (function(doc) {
             gameController.initPlayers(Player(playerOne), Player(playerTwo));
         } else {
             playerTwo = "Computer"
-            gameController.initPlayers(Player(playerOne), Player(playerTwo), true);
+            let isMiniMaxGame = doc.getElementById('impossible-computer').checked;
+            gameController.initPlayers(Player(playerOne), Player(playerTwo), true, isMiniMaxGame);
         }
 
         _removeFormEL();
