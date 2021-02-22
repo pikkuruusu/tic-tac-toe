@@ -282,7 +282,6 @@ const displayController = (function(doc) {
         endScreen.remove();
 
         gameController.resetMainGameBoard();
-        gameController.resetRound();
         let players = gameController.getPlayers();
         players[0].setTurn(true);
         players[1].setTurn(false);
@@ -392,7 +391,6 @@ const inputController = (function(doc) {
 })(document);
 
 const gameController = (function() {
-    let round = 0;
     let players = [];
     let mainGameBoard = GameBoard();
     let isMiniMaxGame;
@@ -428,11 +426,10 @@ const gameController = (function() {
                 }
 
                 player.setTurn(false);
-                round++;
             } else {
                 player.setTurn(true);
             }
-            //here we can check if it is computer players turn and call some functions that calls play round
+            //here we can check if it is computer players turn and call some functions that calls playRound
             setTimeout(function () {
                 if (player.getIsComputer() && player.getTurn()) {
                     isMiniMaxGame ? _impossibleComputerMove() : _randomComputerMove();
@@ -448,10 +445,6 @@ const gameController = (function() {
         mainGameBoard.setSquare(yCoordinate, xCoordinate, marker);
         displayController.writeMarkerToDOM(yCoordinate, xCoordinate, marker);
     }
-
-    const resetRound = () => {
-        round = 0;
-    };
 
     const resetMainGameBoard = () => {
         mainGameBoard.clearBoard();
@@ -529,7 +522,6 @@ const gameController = (function() {
     return {
         initPlayers,
         playRound,
-        resetRound,
         resetMainGameBoard,
         getPlayers
     }
