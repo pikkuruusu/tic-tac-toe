@@ -84,6 +84,10 @@ const GameBoard = function(boardInput = [[0,0,0],[0,0,0],[0,0,0]]) {
         return freeSquares;
     }
 
+    const isFullBoard = () => {
+        return getFreeSquares().length === 0;
+    }
+
     const clearBoard = () => {
         board = [[0,0,0],[0,0,0],[0,0,0]];
     }
@@ -98,6 +102,7 @@ const GameBoard = function(boardInput = [[0,0,0],[0,0,0],[0,0,0]]) {
         getBoard,
         getFreeSquares,
         isWinningBoard,
+        isFullBoard,
         clearBoard
     }
 };
@@ -412,11 +417,12 @@ const gameController = (function() {
             if (player.getTurn()) {
                 _placeMarker(yCoordinate, xCoordinate, player);
 
-                if (_isWin(yCoordinate, xCoordinate)) {
+                if (mainGameBoard.isWinningBoard()) {
                     displayController.renderEndScreen(true, player);
                     return;
                 }
-                if (_isDraw()) {
+                //If we don't have a win and the board is full, it is a draw
+                if (mainGameBoard.isFullBoard()) {
                     displayController.renderEndScreen(false);
                     return;
                 }
@@ -442,21 +448,6 @@ const gameController = (function() {
         mainGameBoard.setSquare(yCoordinate, xCoordinate, marker);
         displayController.writeMarkerToDOM(yCoordinate, xCoordinate, marker);
     }
-
-    //TODO this functionality is already available in the the board
-    const _isWin = (yCoordinate, xCoordinate) => {
-        // If row, column or diagonal sum is 3 or -3 a player has won
-        let sums = []
-        sums.push(mainGameBoard.sumOfRow(yCoordinate));
-        sums.push(mainGameBoard.sumOfColumn(xCoordinate));
-        mainGameBoard.sumOfDiagonals().forEach(sum => sums.push(sum));
-
-        return (sums.includes(3) || sums.includes(-3))
-    }
-
-    const _isDraw = () => {
-        return round === 8;
-    };
 
     const resetRound = () => {
         round = 0;
