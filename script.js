@@ -13,6 +13,7 @@ const copyArray = (arr) => {
     return newArr;
 }
 
+//Factory functions
 const GameBoard = function(boardInput = [[0,0,0],[0,0,0],[0,0,0]]) {
     //Problem, this passes reference need to
     let board = copyArray(boardInput);
@@ -93,7 +94,6 @@ const GameBoard = function(boardInput = [[0,0,0],[0,0,0],[0,0,0]]) {
     }
 
     return {
-        board,
         setSquare,
         getSquare,
         sumOfRow,
@@ -107,6 +107,47 @@ const GameBoard = function(boardInput = [[0,0,0],[0,0,0],[0,0,0]]) {
     }
 };
 
+const Player = function(name) {
+    let isTurn = false;
+    let playerMarker = "";
+    let isComputer = false;
+
+    const setTurn = (bool) => {
+        isTurn = bool;
+    };
+
+    const getTurn = () => {
+        return isTurn;
+    };
+
+    const setPlayerMarker = (marker) => {
+        playerMarker = marker;
+    };
+
+    const getPlayerMarker = () => {
+        return playerMarker;
+    }
+
+    const setIsComputer = (bool) => {
+        isComputer = bool;
+    }
+
+    const getIsComputer = () => {
+        return isComputer;
+    }
+
+    return {
+        name,
+        setTurn,
+        getTurn,
+        setPlayerMarker,
+        getPlayerMarker,
+        setIsComputer,
+        getIsComputer,
+    }
+};
+
+//Modules
 const displayController = (function(doc) {
     const mainContainer = doc.querySelector('main');
 
@@ -527,45 +568,6 @@ const gameController = (function() {
     }
 })();
 
-const Player = function(name) {
-    let isTurn = false;
-    let playerMarker = "";
-    let isComputer = false;
-
-    const setTurn = (bool) => {
-        isTurn = bool;
-    };
-
-    const getTurn = () => {
-        return isTurn;
-    };
-
-    const setPlayerMarker = (marker) => {
-        playerMarker = marker;
-    };
-
-    const getPlayerMarker = () => {
-        return playerMarker;
-    }
-
-    const setIsComputer = (bool) => {
-        isComputer = bool;
-    }
-
-    const getIsComputer = () => {
-        return isComputer;
-    }
-
-    return {
-        name,
-        setTurn,
-        getTurn,
-        setPlayerMarker,
-        getPlayerMarker,
-        setIsComputer,
-        getIsComputer,
-    }
-};
-
+//Inital function calls
 displayController.renderForm();
 inputController.initPlayerSelectInput();
