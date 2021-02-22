@@ -452,12 +452,12 @@ const gameController = (function() {
     const playRound = (yCoordinate, xCoordinate) => {
         if (mainGameBoard.getSquare(yCoordinate, xCoordinate)) return;
 
-        players.forEach(player => {
-            if (player.getTurn()) {
-                _placeMarker(yCoordinate, xCoordinate, player);
+        for (i = 0; i < players.length; i++) {
+            if (players[i].getTurn()) {
+                _placeMarker(yCoordinate, xCoordinate, players[i]);
 
                 if (mainGameBoard.isWinningBoard()) {
-                    displayController.renderEndScreen(true, player);
+                    displayController.renderEndScreen(true, players[i]);
                     return;
                 }
                 //If we don't have a win and the board is full, it is a draw
@@ -466,19 +466,19 @@ const gameController = (function() {
                     return;
                 }
 
-                player.setTurn(false);
+                players[i].setTurn(false);
             } else {
-                player.setTurn(true);
+                players[i].setTurn(true);
             }
             //here we can check if it is computer players turn and call some functions that calls playRound
-            setTimeout(function () {
-                if (player.getIsComputer() && player.getTurn()) {
+            (function(i) {setTimeout(function () {
+                if (players[i].getIsComputer() && players[i].getTurn()) {
                     isMiniMaxGame ? _impossibleComputerMove() : _randomComputerMove();
                 }
-            }, 500)
+            }, 500)})(i);
 
 
-        })
+        };
     }
 
     const _placeMarker = (yCoordinate, xCoordinate, player) => {
