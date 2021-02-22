@@ -1,4 +1,22 @@
-const gameBoard = function(board = [[0,0,0],[0,0,0],[0,0,0]]) {
+//Helper function
+const copyArray = (arr) => {
+    let newArr = [];
+
+    arr.forEach(elem => {
+        if(Array.isArray(elem)) {
+            newArr.push(copyArray(elem))
+        } else {
+            newArr.push(elem)
+        }
+    });
+
+    return newArr;
+}
+
+const GameBoard = function(boardInput = [[0,0,0],[0,0,0],[0,0,0]]) {
+    //Problem, this passes reference need to
+    let board = copyArray(boardInput);
+
     const setSquare = (y, x, value) => {
         board[y][x] = _translateMarkerToInt(value);
     };
@@ -39,6 +57,21 @@ const gameBoard = function(board = [[0,0,0],[0,0,0],[0,0,0]]) {
         return sum;
     };
 
+    const isWinningBoard = () => {
+        let sums = [];
+        for (yx = 0; yx < 3; yx++) {
+            sums.push(sumOfRow(yx));
+            sums.push(sumOfColumn(yx));
+        }
+        sumOfDiagonals().forEach(sum => sums.push(sum));
+
+        return (sums.includes(3) || sums.includes(-3));
+    }
+
+    const getBoard = () => {
+        return board;
+    }
+
     const getFreeSquares = () => {
         let freeSquares =[];
         for (y = 0; y < 3; y++) {
@@ -56,12 +89,15 @@ const gameBoard = function(board = [[0,0,0],[0,0,0],[0,0,0]]) {
     }
 
     return {
+        board,
         setSquare,
         getSquare,
         sumOfRow,
         sumOfColumn,
         sumOfDiagonals,
+        getBoard,
         getFreeSquares,
+        isWinningBoard,
         clearBoard
     }
 };
@@ -353,7 +389,7 @@ const inputController = (function(doc) {
 const gameController = (function() {
     let round = 0;
     let players = [];
-    let mainGameBoard = gameBoard();
+    let mainGameBoard = GameBoard();
     let isMiniMaxGame;
 
     //This need to be changed to get computer player, maybe just a bool
@@ -392,7 +428,9 @@ const gameController = (function() {
             }
             //here we can check if it is computer players turn and call some functions that calls play round
             setTimeout(function () {
-                if (player.getIsComputer() && player.getTurn()) _randomComputerMove();
+                if (player.getIsComputer() && player.getTurn()) {
+                    isMiniMaxGame ? _impossibleComputerMove() : _randomComputerMove();
+                }
             }, 500)
 
 
@@ -403,9 +441,9 @@ const gameController = (function() {
         let marker = player.getPlayerMarker();
         mainGameBoard.setSquare(yCoordinate, xCoordinate, marker);
         displayController.writeMarkerToDOM(yCoordinate, xCoordinate, marker);
-        console.log(`${player.name} placed ${marker}`);
     }
 
+    //TODO this functionality is already available in the the board
     const _isWin = (yCoordinate, xCoordinate) => {
         // If row, column or diagonal sum is 3 or -3 a player has won
         let sums = []
@@ -422,15 +460,15 @@ const gameController = (function() {
 
     const resetRound = () => {
         round = 0;
-    }
+    };
 
     const resetMainGameBoard = () => {
         mainGameBoard.clearBoard();
-    }
+    };
 
     const getPlayers = () => {
         return players;
-    }
+    };
 
     const _randomComputerMove = () => {
         const freeSquares = mainGameBoard.getFreeSquares();
@@ -438,8 +476,64 @@ const gameController = (function() {
             const randomFreeSquare = freeSquares[Math.floor(Math.random() * freeSquares.length)];
             playRound(randomFreeSquare[0], randomFreeSquare[1]);
         }
-        
-    }
+    };
+
+    const _impossibleComputerMove = () => {
+        const freeSquares = mainGameBoard.getFreeSquares();
+        let highestValueMove = -Infinity;
+        let bestMove = [];
+
+        //Lets test get a value for all free moves
+        for (i = 0; i < freeSquares.length; i++) {
+            //We create a temporary copy of the main gameboard
+            let testBoard = GameBoard(mainGameBoard.getBoard());
+
+            //We set a test move
+            testBoard.setSquare(freeSquares[i][0], freeSquares[i][1], 'O');
+
+            //Then we evaluate the move
+            let moveValue = _miniMax(testBoard, 0, false);
+            //Change values if new best move is found
+            if (moveValue >= highestValueMove) {
+                highestValueMove = moveValue;
+                bestMove = freeSquares[i];
+            };
+        }
+
+        playRound(bestMove[0], bestMove[1]);
+
+    };
+
+    const _miniMax = (board, depth, isMaximising) => {
+        //First we check if previous board is winning
+        if(board.isWinningBoard()) {
+            return isMaximising ? depth - 10 : 10 - depth; 
+        }
+
+        const freeSquares = board.getFreeSquares();
+        //If there are no free moves left and no win it is a draw
+        if(freeSquares.length === 0) return 0;
+
+        let highestMoveValue = -Infinity;
+        let lowestMoveValue = Infinity;
+
+        freeSquares.forEach(move => {
+            //We create a temporary copy of the board
+            let testBoard = GameBoard(board.getBoard());
+
+            if(isMaximising) {
+                testBoard.setSquare(move[0], move[1], 'O');
+                let moveValue =_miniMax(testBoard, depth + 1, false)
+                highestMoveValue = Math.max(moveValue, highestMoveValue);
+            } else {
+                testBoard.setSquare(move[0], move[1], 'X');
+                let moveValue =_miniMax(testBoard, depth + 1, true)
+                lowestMoveValue = Math.min(moveValue, lowestMoveValue);
+            }
+        })
+
+        return isMaximising ? highestMoveValue : lowestMoveValue;
+    };
 
     return {
         initPlayers,
